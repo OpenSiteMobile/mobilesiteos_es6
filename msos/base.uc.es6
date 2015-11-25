@@ -608,8 +608,7 @@ msos.config = {
 }(msos));
 
 
-msos.parse_query = function () {
-    "use strict";
+msos.parse_query = () => {
 
 	let url = msos.purl(),	// Get current page url
 		key = '',
@@ -646,7 +645,6 @@ msos.config.query = msos.parse_query();
 
 
 msos.console = (function () {
-	"use strict";
 
 	let console_obj = { queue: [] },
 		console_win = window.console,
@@ -757,7 +755,6 @@ msos.console.debug('msos/base -> purl.js now available.');
  */
 
 (function(window, document) {
-    "use strict";
 
     var tests = [],
         classes = [],
@@ -2064,10 +2061,8 @@ if (msos.config.verbose) {
 // Copyright (C) 2012 Ryan Van Etten
 
 (function (root, name, make) {
-    "use strict";
     root[name] = make();
 }(msos, 'verge', function () {
-    "use strict";
 
     var xports = {},
         win = window !== undefined && window,
@@ -2176,17 +2171,17 @@ if (msos.config.verbose) {
 
 // Sort 'size_wide' object into consistent 'size_array' for resizeable displays
 Object.keys(msos.config.size_wide).map(
-		function (k) {
+		(k) => {
 			return [k, msos.config.size_wide[k]];
 		}
 	).sort(
-		function (a, b) {
+		(a, b) => {
 			if (a[1] < b[1]) return -1;
 			if (a[1] > b[1]) return  1;
 			return 0;
 		}
 	).forEach(
-		function (d) {
+		(d) => {
 			msos.config.size_array.push(d[0]);
 		}
 	);
@@ -2195,43 +2190,38 @@ Object.keys(msos.config.size_wide).map(
 // --------------------------
 // MSOS Helper Functions
 // --------------------------
-msos.var_is_null = function (variable) {
-    "use strict";
+msos.var_is_null = (variable) => {
 
     if (variable === undefined)	{ return true;  }
     if (variable === null)		{ return true;  }
     return false;
 };
 
-msos.var_is_empty = function (variable) {
-    "use strict";
+msos.var_is_empty = (variable) => {
 
     if (msos.var_is_null(variable))	{ return true;  }
     if (variable === '')			{ return true;  }
 	return false;
 };
 
-msos.do_nothing = function (evt) {
-    'use strict';
+msos.do_nothing = (evt) => {
 
     evt.preventDefault();
     evt.stopPropagation();
 };
 
-msos.do_abs_nothing = function (evt) {
-    'use strict';
+msos.do_abs_nothing = (evt) => {
 
     evt.preventDefault();
     evt.stopImmediatePropagation();
 };
 
-msos.new_time = function () {
-	"use strict";
+msos.new_time = () => {
+
 	return (new Date()).getTime();
 };
 
 msos.set_version = function (mjr, mnr, pth) {
-	"use strict";
 
 	let self = this;
 
@@ -2239,7 +2229,7 @@ msos.set_version = function (mjr, mnr, pth) {
 		major: mjr,		// year
 		minor: mnr,		// month
 		patch: pth,		// day
-		toString: function () {
+		toString() {
 			return 'v' + self.major + '.' + self.minor + '.' + self.patch;
 		}
 	};
@@ -2247,8 +2237,7 @@ msos.set_version = function (mjr, mnr, pth) {
 	return self;
 };
 
-msos.gen_namespace = function (b) {
-	"use strict";
+msos.gen_namespace = (b) => {
 
 	let a = window,
 		c = 0;
@@ -2262,9 +2251,7 @@ msos.gen_namespace = function (b) {
 	return a;
 };
 
-msos.generate_url_name = function (url) {
-	"use strict";
-
+msos.generate_url_name = (url) => {
 	let path,
 		parts = [],
 		name = '';
@@ -2280,9 +2267,7 @@ msos.generate_url_name = function (url) {
 	return name;
 };
 
-msos.run_function_array = function (name = 'missing') {
-	"use strict";
-
+msos.run_function_array = (name = 'missing') => {
 	let temp_fa = 'msos.run_func_array -> ',
 		m = 0;
 
@@ -2312,48 +2297,20 @@ msos.run_function_array = function (name = 'missing') {
 
 
 // --------------------------
-// Get Script url Location
-// --------------------------
-msos.get_js_base = function () {
-    "use strict";
-
-    let temp_gsl = 'msos.get_js_base -> ',
-		scripts_array,
-		current_script,
-		script_url;
-
-	msos.console.debug(temp_gsl + 'start.');
-
-    scripts_array = document.getElementsByTagName('script');
-    current_script = scripts_array[scripts_array.length - 1]; // last available script is this one when called
-    script_url = current_script.src;
-    script_url = script_url.slice(0, script_url.lastIndexOf('/') + 1) || '';
-
-	// No reason to continue
-    if (!script_url) { throw new Error(temp_gsl + 'failed!'); }
-
-	msos.console.debug(temp_gsl + 'done, uri: ' + script_url);
-	return script_url;
-};
-
-// --------------------------
 // Apply Resource (relative) Locations
 // --------------------------
-msos.resource_url = function (folder, resource_file) {
-    "use strict";
+msos.resource_url = (folder, resource_file) => {
     // Always relative to 'msos' folder
     return msos.base_script_url.replace(/\/msos\//, '/' + folder + '/') + resource_file;
 };
 
-msos.set_locale = function () {
-	"use strict";
-
+msos.set_locale = () => {
 	let temp_gl = 'msos.set_locale -> ',
 		cfg = msos.config,
 		store_obj = cfg.storage.site_i18n,
 		store_array = [];
 
-    if (store_obj.value) { store_array = store_obj.value.split(':'); }
+	if (store_obj.value) { store_array = store_obj.value.split(':'); }
 
 	msos.console.debug(temp_gl + 'start, stored local: ' + (store_obj.value || 'na'));
 
@@ -2365,9 +2322,7 @@ msos.set_locale = function () {
 	msos.console.debug(temp_gl + ' done, locale: ' + cfg.locale + ', culture: ' + cfg.culture + ', calendar: ' + cfg.calendar);
 };
 
-msos.set_locale_storage = function () {
-	"use strict";
-
+msos.set_locale_storage = () => {
 	let temp_sl = 'msos.set_locale_storage -> ',
 		store_obj = msos.config.storage.site_i18n;
 
@@ -2385,10 +2340,8 @@ msos.set_locale_storage = function () {
 // --------------------------
 // Browser detection & testing
 // --------------------------
-msos.get_viewport = function (for_win) {
-    "use strict";
-
-    let port = msos.verge.viewport();
+msos.get_viewport = (for_win) => {
+	let port = msos.verge.viewport();
 
     if (window === for_win) { msos.config.view_port = port; }
 
@@ -2396,9 +2349,7 @@ msos.get_viewport = function (for_win) {
     return port;
 };
 
-msos.browser_orientation = function () {
-    "use strict";
-
+msos.browser_orientation = () => {
     let orient_ref = msos.config.view_orientation,
 		v_port_ref = msos.get_viewport(window),
 		temp_txt = 'msos.browser_orientation -> ';
@@ -2443,9 +2394,7 @@ msos.browser_orientation = function () {
     return orient_ref;
 };
 
-msos.browser_ok = function () {
-    "use strict";
-
+msos.browser_ok = () => {
     let temp_txt = 'msos.browser_ok -> ',
 		failed = [];
 
@@ -2468,9 +2417,7 @@ msos.browser_ok = function () {
     msos.config.browser.ok = false;
 };
 
-msos.browser_current = function () {
-    "use strict";
-
+msos.browser_current = () => {
     let temp_txt = 'msos.browser_current -> ',
 		failed = [];
 
@@ -2493,6 +2440,7 @@ msos.browser_current = function () {
     }
 
     msos.console.warn(temp_txt + 'browser does not support: ' + failed.join(', ') + ' -> for doctype ' + msos.config.doctype);
+
     if (msos.config.doctype === 'xhtml5' && failed[2] === 'document.write') {
 		msos.config.browser.current = true;
 		return;
@@ -2502,9 +2450,7 @@ msos.browser_current = function () {
     msos.config.browser.current = false;
 };
 
-msos.browser_touch = function () {
-    "use strict";
-
+msos.browser_touch = () => {
     let temp_tch = 'msos.browser_touch -> ',
 		test = '',
 		test_div = document.createElement('div'),
@@ -2544,9 +2490,7 @@ msos.browser_touch = function () {
     msos.console.debug(temp_tch + 'touch is ' + (msos.config.browser.touch ? '' : 'not') + ' available, ref. (' + String(touch_avail) + ')');
 };
 
-msos.browser_mobile = function () {
-    "use strict";
-
+msos.browser_mobile = () => {
     let temp_mbl = 'msos.browser_mobile -> ',
 		device = '',
 		scrn_px = 0,
@@ -2584,9 +2528,7 @@ msos.browser_mobile = function () {
     }
 };
 
-msos.browser_advanced = function () {
-    "use strict";
-
+msos.browser_advanced = () => {
     let temp_txt = 'msos.browser_advanced -> ',
 		M = Modernizr,
 		failed = [];
@@ -2612,9 +2554,7 @@ msos.browser_advanced = function () {
     return true;
 };
 
-msos.browser_editable = function () {
-    "use strict";
-
+msos.browser_editable = () => {
     if (!(document.designMode || msos.body.contentEditable))	{ msos.config.browser.editable = false; return; }
     if (document.execCommand === undefined)						{ msos.config.browser.editable = false; return; }
 
@@ -2623,13 +2563,11 @@ msos.browser_editable = function () {
 };
 
 // Don't run before 'body' is loaded, see 'msos.run_onload'
-msos.browser_direction = function () {
-    "use strict";
-
+msos.browser_direction = () => {
     let browser_dir = '',
 		build_test = null;
 
-    build_test = function () {
+    build_test = () => {
 		let container = document.createElement("p"),
 			span = document.createElement("span"),
 			direction = '';
@@ -2654,9 +2592,7 @@ msos.browser_direction = function () {
     msos.config.browser.direction = browser_dir;
 };
 
-msos.browser_preloading = function () {
-	"use strict";
-
+msos.browser_preloading = () => {
 	let script_pre = msos.config.script_preload,
 		script_elm = document.createElement("script"),
 		dua = navigator.userAgent;
@@ -2672,9 +2608,7 @@ msos.browser_preloading = function () {
 	script_elm = null;
 };
 
-msos.get_head = function (win) {
-    "use strict";
-
+msos.get_head = (win) => {
     let d = win.document,
 		de = d.documentElement,
 		hd = d.head || d.getElementsByTagName('head')[0];
@@ -2686,9 +2620,7 @@ msos.get_head = function (win) {
     return hd;
 };
 
-msos.create_node = function (tag, atts_obj, win) {
-    "use strict";
-
+msos.create_node = (tag, atts_obj, win) => {
     // Allow creating element in another window
     if (!win) { win = window; }
 
@@ -2709,8 +2641,6 @@ msos.create_node = function (tag, atts_obj, win) {
 };
 
 msos.loader = function (win = window) {
-    "use strict";
-
     let temp_mod = 'msos.loader',
 		ld_obj = this,
 		file = msos.purl().attr('file'),
@@ -2761,7 +2691,7 @@ msos.loader = function (win = window) {
 
 		} else {
 
-			load_resource_func = function () { ld_obj.resource(name, url, type, attribs); };
+			load_resource_func = () => ld_obj.resource(name, url, type, attribs);
 
 			if (attribs.defer
 			 && attribs.defer === 'defer') {
@@ -2889,7 +2819,7 @@ msos.loader = function (win = window) {
 		node.msos_load_state = 'loading';
 
 		if (type === 'js' && msos.config.script_onerror) {
-			node.onerror = function (e) { msos.console.error(temp_mod + ' -> failed for: ' + name, e); };
+			node.onerror = (e) => msos.console.error(temp_mod + ' -> failed for: ' + name, e);
 		}
 
 		if (msos.config.verbose) {
@@ -2957,9 +2887,7 @@ msos.loader = function (win = window) {
 // --------------------------
 // Setup MSOS Environment
 // --------------------------
-msos.set_environment = function () {
-    "use strict";
-
+msos.set_environment = () => {
     let set_txt = 'msos.set_environment -> ',
 		st_obj = msos.config.storage;
 
@@ -2987,9 +2915,7 @@ msos.set_environment = function () {
 	}
 };
 
-msos.calc_display_size = function () {
-    "use strict";
-
+msos.calc_display_size = () => {
     let view = '',
 		view_size = msos.config.view_port,
 		view_width = 0,
@@ -3019,9 +2945,7 @@ msos.calc_display_size = function () {
     return view;
 };
 
-msos.get_display_size = function (resize) {
-    "use strict";
-
+msos.get_display_size = (resize) => {
     let temp_dis = 'msos.get_display_size -> ',
 		store_value = msos.config.storage.site_pref.value,
 		browser_layout  = msos.config.view_orientation.layout,
@@ -3069,9 +2993,7 @@ msos.get_display_size = function (resize) {
 // --------------------------
 // Bulk External CSS Loading
 // --------------------------
-msos.css_loader = function (url_array, win) {
-	"use strict";
-
+msos.css_loader = (url_array, win) => {
 	let temp_cl = 'msos.css_loader -> ',
 		loader_obj = null,
 		css_name = '',
@@ -3092,9 +3014,7 @@ msos.css_loader = function (url_array, win) {
 	msos.console.debug(temp_cl + 'done!');
 };
 
-msos.escape_html = function (str) {
-    "use strict";
-
+msos.escape_html = (str) => {
     if (str) {
         return jQuery('<div></div>').text(str).html();
     }
@@ -3102,10 +3022,8 @@ msos.escape_html = function (str) {
     return '';
 };
 
-msos.valid_jq_node = function ($node, type) {
-    "use strict";
-
-	let temp_vn = 'msos.valid_jq_node -> input is not a ';
+msos.valid_jq_node = ($node, type) => {
+    let temp_vn = 'msos.valid_jq_node -> input is not a ';
 
 	if (msos.in_dom_jq_node($node)) {
 		if ($node[0].tagName.toLowerCase() === type) { return true; }
@@ -3119,9 +3037,7 @@ msos.valid_jq_node = function ($node, type) {
     return false;
 };
 
-msos.in_dom_jq_node = function ($node) {
-	"use strict";
-
+msos.in_dom_jq_node = ($node) => {
 	if ($node
 	 && $node.length
 	 && $node[0].parentNode) {
@@ -3132,9 +3048,7 @@ msos.in_dom_jq_node = function ($node) {
 	return false;
 };
 
-msos.byid = function (id, in_doc) {
-    "use strict";
-
+msos.byid = (id, in_doc) => {
     let temp_byi = 'msos.byid -> ',
 		use_doc = null,
 		dom_node = null;
@@ -3157,9 +3071,7 @@ msos.byid = function (id, in_doc) {
 	return null;
 };
 
-msos.zero_pad = function (input, count, left) {
-    "use strict";
-
+msos.zero_pad = (input, count, left) => {
     let str = input.toString();
 
     while (str.length < count) {
@@ -3168,9 +3080,7 @@ msos.zero_pad = function (input, count, left) {
     return str;
 };
 
-msos.run_onresize = function () {
-    "use strict";
-
+msos.run_onresize = () => {
     let temp_onr = 'msos.run_onresize -> ',
 		port_width = msos.config.view_port.width,	// save original width
 		m = 0;
@@ -3188,9 +3098,7 @@ msos.run_onresize = function () {
 	msos.console.debug(temp_onr + 'done, orig. w: ' + port_width + ', new w: ' + msos.config.view_port.width + ', for: ' + m + ' functions.');
 };
 
-msos.run_onorientationchange = function () {
-    "use strict";
-
+msos.run_onorientationchange = () => {
     let temp_ono = 'msos.run_onorientationchange -> ',
 		port_width = msos.config.view_port.width,	// save original width
 		previous = msos.config.view_orientation,	// previous orientation
@@ -3219,9 +3127,7 @@ msos.run_onorientationchange = function () {
 	msos.console.debug(temp_ono + 'done, orig. w: ' + port_width + ', new w: ' + msos.config.view_port.width + ', for: ' + m + ' functions.');
 };
 
-msos.gen_select_menu = function (select_elm, options_object, selected) {
-    "use strict";
-
+msos.gen_select_menu = (select_elm, options_object, selected) => {
     let temp_gen = 'msos.gen_select_menu',
         to_check = [],
         checked = [];
@@ -3295,9 +3201,7 @@ msos.gen_select_menu = function (select_elm, options_object, selected) {
 // MSOS Module Loading Functions
 // *******************************************
 
-msos.provide = function (register_module) {
-    "use strict";
-
+msos.provide = (register_module) => {
     let temp_p = 'msos.provide -> ',
 		mod_id = register_module.replace(/\./g, '_');
 
@@ -3310,9 +3214,7 @@ msos.provide = function (register_module) {
 	msos.console.debug(temp_p + 'executing: ' + register_module);
 };
 
-msos.require = function (module_name, add_onsuccess_func) {
-    "use strict";
-
+msos.require = (module_name, add_onsuccess_func) => {
     let req_text = 'msos.require -> ',
 		module_id = '',
 		name_array = module_name.split("."),
@@ -3389,7 +3291,7 @@ msos.require = function (module_name, add_onsuccess_func) {
     }
 
     /* Available inputs: data, status, xhr */
-    on_success = function () {
+    on_success = () => {
 		msos.console.debug(req_text + 'found: ' + module_name + ', queue: ' + msos.require_queue);
 
 		msos.registered_files.ajax[module_name] = uri;
@@ -3397,7 +3299,7 @@ msos.require = function (module_name, add_onsuccess_func) {
 		if (_.isFunction(add_onsuccess_func)) { add_onsuccess_func(); }
     };
 
-    on_complete = function () {
+    on_complete = () => {
 		msos.console.debug(req_text + 'completed: ' +  module_name + ', queue: ' + msos.require_queue);
 
 		// Now verify is executable
@@ -3410,9 +3312,7 @@ msos.require = function (module_name, add_onsuccess_func) {
     msos.ajax_request(uri, "script", on_success, on_complete);
 };
 
-msos.template = function (template_name, add_onsuccess_func) {
-    "use strict";
-
+msos.template = (template_name, add_onsuccess_func) => {
     let req_text = 'msos.template -> ',
 		template_id = template_name.replace(/\./g, '_'),
 		name_array = template_name.split("."),
@@ -3458,7 +3358,7 @@ msos.template = function (template_name, add_onsuccess_func) {
     }
 
     // Available inputs: data, status, xhr
-    on_success = function (data) {
+    on_success = (data) => {
 		// Now verify useful data
 		if (typeof data === 'string' && data.length > 0) {
 			// Load template html into the base object
@@ -3476,7 +3376,7 @@ msos.template = function (template_name, add_onsuccess_func) {
 		  }
     };
 
-    on_complete = function () {
+    on_complete = () => {
 		msos.console.debug(req_text + 'completed: ' +  template_name + ', queue: ' + msos.require_queue);
 		// Request completed, so de-increment the queue
 		msos.require_queue -= 1;
@@ -3485,13 +3385,11 @@ msos.template = function (template_name, add_onsuccess_func) {
     msos.ajax_request(uri, "html", on_success, on_complete);
 };
 
-msos.ajax_request = function (ajax_uri, data_type, on_success_func, on_complete_func) {
-    "use strict";
-
+msos.ajax_request = (ajax_uri, data_type, on_success_func, on_complete_func) => {
     let req_text = 'msos.ajax_request -> ',
 		ajax_name = msos.generate_url_name(ajax_uri),
 		st = msos.new_time(),
-		on_success_request  = function (data, status, xhr) {
+		on_success_request = (data, status, xhr) => {
 
 			// Track bandwidth for each request
 			if (typeof data === 'string' && data.length > 0) {
@@ -3510,7 +3408,7 @@ msos.ajax_request = function (ajax_uri, data_type, on_success_func, on_complete_
 
 			if (_.isFunction(on_success_func)) { on_success_func(data, status, xhr); }
 		},
-		on_complete_request = function (xhr, status) {
+		on_complete_request = (xhr, status) => {
 			let stat_msg = xhr.status + ', status: ' + status;
 
 			if (msos.config.verbose) {
@@ -3531,9 +3429,7 @@ msos.ajax_request = function (ajax_uri, data_type, on_success_func, on_complete_
     );
 };
 
-msos.ajax_error = function (xhr, status, error) {
-    "use strict";
-
+msos.ajax_error = (xhr, status, error) => {
     let err_msg = status + ': ' + error,
 		use_msg = '',
 		i18n = {};
@@ -3567,9 +3463,7 @@ msos.ajax_error = function (xhr, status, error) {
     else						{ msos.console.error(use_msg); }
 };
 
-msos.hide_mobile_url = function () {
-	"use strict";
-
+msos.hide_mobile_url = () => {
 	// Order with msos.notify is important. We don't want scrolling and DOM manipulations to interact.
 	window.scrollTo(0, 1);
 
@@ -3581,7 +3475,7 @@ msos.hide_mobile_url = function () {
 
 	msos.console.debug('msos.hide_mobile_url -> called, scrollTop: ' + scrollTop);
 
-	setTimeout(function () { window.scrollTo(0, scrollTop === 1 ? 0 : 1); }, 1);
+	setTimeout(() => { window.scrollTo(0, scrollTop === 1 ? 0 : 1); }, 1);
 };
 
 msos.notify = {
@@ -3589,8 +3483,6 @@ msos.notify = {
 	container: jQuery("<div id='notify_container'></div>"),
 
 	add: function () {
-		"use strict";
-
 		let cont = msos.notify.container;
 
 		// Add our container
@@ -3644,8 +3536,6 @@ msos.notify = {
 	},
 
 	run: function () {
-		"use strict";
-
 		let temp_rn = 'msos.notify.run -> ',
 			self = msos.notify;
 
@@ -3664,8 +3554,6 @@ msos.notify = {
 	},
 
 	base: function (type, message, title, icon_html, delay = 4000) {	// default delay (minimum), is 4 sec.
-		"use strict";
-
 		let temp_ntf = 'msos.notify.base -> ',
 			self = msos.notify,
 			base_obj = {
@@ -3734,7 +3622,6 @@ msos.notify = {
 	},
 
 	info: function (message, title) {
-		"use strict";
 		let obj = new msos.notify.base(
 			'info',
 			message,
@@ -3745,7 +3632,6 @@ msos.notify = {
 	},
 
 	warning: function (message, title) {
-		"use strict";
 		let obj = new msos.notify.base(
 			'warning',
 			message,
@@ -3757,7 +3643,6 @@ msos.notify = {
 	},
 
 	error: function (message, title) {
-		"use strict";
 		let obj = new msos.notify.base(
 			'error',
 			message,
@@ -3769,7 +3654,6 @@ msos.notify = {
 	},
 
 	success: function (message, title) {
-		"use strict";
 		let obj = new msos.notify.base(
 			'success',
 			message,
@@ -3780,7 +3664,6 @@ msos.notify = {
 	},
 
 	loading: function (message, title) {
-		"use strict";
 		let obj = new msos.notify.base(
 			'loading',
 			message,
@@ -3793,9 +3676,7 @@ msos.notify = {
 };
 
 // Add error notification (Overwritten in msos.onerror for server notification)
-window.onerror = function (msg, url, line, col, er) {
-	"use strict";
-
+window.onerror = (msg, url, line, col, er) => {
 	let error_txt = 'JavaScript Error!';
 
 	msos.console.error('window.onerror -> fired, line: ' + line + ', url: ' + url + ', error: ' + msg, er);
@@ -3811,9 +3692,7 @@ window.onerror = function (msg, url, line, col, er) {
 	return true;
 };
 
-msos.check_resources = function () {
-    "use strict";
-
+msos.check_resources = () => {
     let temp_chk = 'msos.check_resources -> ',
 		mod_id = '',
 		count_module = 0,
@@ -3871,9 +3750,7 @@ msos.check_resources = function () {
     }
 };
 
-msos.set_bandwidth = function () {
-    "use strict";
-
+msos.set_bandwidth = () => {
     let temp_sb = 'msos.set_bandwidth -> ',
 		clear = '',
 		cfg = msos.config,
@@ -3941,15 +3818,13 @@ msos.set_bandwidth = function () {
 	msos.console.debug(temp_sb + 'done, bandwidth: ' + parseInt(avg, 10));
 };
 
-msos.connection = function () {
-	"use strict";
-
+msos.connection = () => {
 	let temp_con = 'msos.connection -> ',
 		con_nav = navigator.connection || { type: 0, bandwidth: 0, metered: false },
 		con_cfg = msos.config.connection,
 		con_type = 'na',
 		con_bwidth = 0,
-		between = function (val, low, high) {
+		between = (val, low, high) => {
             return low < high ? val >= low && val <= high : val >= high && this <= low;
         };
 
@@ -3997,9 +3872,7 @@ msos.connection = function () {
 	}
 };
 
-msos.set_window_onchange = function () {
-	"use strict";
-
+msos.set_window_onchange = () => {
 	let temp_sw = 'msos.set_window_onchange -> ';
 
 	msos.console.debug(temp_sw + 'start.');
@@ -4016,9 +3889,7 @@ msos.set_window_onchange = function () {
 	msos.console.debug(temp_sw + 'done!');
 };
 
-msos.run_intial = function () {
-	"use strict";
-
+msos.run_intial = () => {
 	let run_in = 'msos.run_intial -> ';
 
 	msos.console.debug(run_in + 'start.');
@@ -4034,9 +3905,7 @@ msos.run_intial = function () {
 	msos.console.debug(run_in + 'done!');
 };
 
-msos.run_final = function () {
-	"use strict";
-
+msos.run_final = () => {
 	let temp_rf = 'msos.run_final';
 
 	msos.console.debug(temp_rf + ' -> start.');
@@ -4060,9 +3929,7 @@ msos.run_final = function () {
 // *******************************************
 
 msos.run_onload_incr = 1;
-msos.run_onload = function () {
-    "use strict";
-
+msos.run_onload = () => {
     let run_txt = 'msos.run_onload (' + msos.run_onload_incr + ') =====> ',
 		cfg = msos.config,
 		delay = 100,
@@ -4178,7 +4045,7 @@ msos.run_onload = function () {
 		if (_.indexOf([10, 20, 40, 80, 100, 100], msos.require_attempts) !== -1) {
 			msos.console.warn(run_txt + 'waited: ' + (msos.require_attempts * to_secs) + ' secs.');
 		} else if (msos.require_attempts > 100) {
-			report_stop = function () {
+			report_stop = () => {
 				msos.console.error(run_txt + 'failed, module queue: ' + msos.require_queue + ', i18n queue: ' + msos.i18n_queue);
 				msos.notify.warning(jQuery('title').text(), 'Page Timed Out');
 				msos.check_resources();
@@ -4207,7 +4074,7 @@ msos.get_display_size();
 // *******************************************
 
 jQuery(document).ready(
-	function () {
+	() => {
 		// Order is important!
 		if (msos.config.mobile) {
 			msos.hide_mobile_url();
