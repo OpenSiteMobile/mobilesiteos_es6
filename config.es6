@@ -53,7 +53,7 @@ msos.config.run_social = true;
 // --------------------------
 // Google, AddThis Related Globals
 // --------------------------
-var _gaq = [],
+let _gaq = [],
     ___gcfg = {},
 	addthis_config = {
 		username: 'MobileSiteOS',
@@ -134,7 +134,6 @@ if (msos.config.visualevent) {
 	Element.prototype.recorded_addEventListener = [];
 	Element.prototype.org_addEventListener = Element.prototype.addEventListener;
 	Element.prototype.addEventListener = function (a, b, c) {
-		"use strict";
 
 		this.org_addEventListener(a, b, c);
 
@@ -162,11 +161,10 @@ if (msos.config.visualevent) {
  * Licensed under the MIT License
  */
 (function ($) {
-	'use strict';
 
 	$.fn.succinct = function (opts) {
 
-		var defaults = {
+		let defaults = {
 				size: 240,
 				omission: '...',
 				ignore: true
@@ -175,7 +173,7 @@ if (msos.config.visualevent) {
 
 		return this.each(function () {
 
-			var textDefault,
+			let textDefault,
 				textTruncated,
 				elements = $(this),
 				regex    = /[!-\/:-@\[-`{-~]$/,
@@ -198,12 +196,10 @@ if (msos.config.visualevent) {
 							$(this).text(textTruncated + options.omission);
 						}
 					});
-				},
-				init = function () {
-					truncate();
 				};
 
-			init();
+			// Now start...
+			truncate();
 		});
 	};
 }(jQuery));
@@ -221,19 +217,18 @@ if (msos.config.visualevent) {
  * Modified for MobileSiteOS
  */
 (function ($) {
-	"use strict";
 
 	$.fn.fitText = function (compressor = 1, options) {
 
         // Setup options
-        var settings = $.extend({
+        let settings = $.extend({
                 'minFontSize': Number.NEGATIVE_INFINITY,
                 'maxFontSize': Number.POSITIVE_INFINITY
             }, options);
 
         return this.each(
 			function () {
-				var $this = $(this);
+				let $this = $(this);
 				// Resizes items based on the object width divided by the compressor * 10
 				$this.css('font-size', Math.max(Math.min($this.width() / (compressor * 10), parseFloat(settings.maxFontSize)), parseFloat(settings.minFontSize)));
 			}
@@ -244,10 +239,9 @@ if (msos.config.visualevent) {
 
 // Adjust branding display using above
 msos.ondisplay_size_change.push(
-	function () {
-		"use strict";
+	() => {
 
-		var branding = jQuery('#branding');
+		let branding = jQuery('#branding');
 
 		branding.hide();
 
@@ -285,10 +279,9 @@ msos.site = {};
  * 
  * Minimized and altered version for MobileSiteOS
 */
-msos.site.likeness = function (string, word) {
-    "use strict";
+msos.site.likeness = (string, word) => {
 
-	var temp_sl = 'msos.site.likeness -> ',
+	let temp_sl = 'msos.site.likeness -> ',
 		i = 0,
         runningScore = 0,
         charScore,
@@ -346,13 +339,12 @@ msos.site.likeness = function (string, word) {
 // Google Analytics Tracking Function
 // --------------------------
 
-msos.site.google_analytics = function () {
-    "use strict";
+msos.site.google_analytics = () => {
 
     // Set to your website or remove if/else statment
     if (document.domain === msos.config.google.analytics_domain) {
 
-		var url = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js',
+		let url = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js',
 			ga_loader = new msos.loader();
 
 		// Use our loader for better debugging
@@ -368,13 +360,12 @@ msos.site.google_analytics = function () {
 // Social Website Code
 // --------------------------
 
-msos.site.addthis_share = function () {
-	"use strict";
+msos.site.addthis_share = () => {
 
 	// Use AddThis provided language output
 	msos.config.google.no_translate.by_id.push('#social_ties');
 
-	var html_out =
+	let html_out =
 			'<div class="addthis_toolbox addthis_default_style ">' +
 				'<a class="addthis_button_google_plusone_share"></a>' +
 				'<a class="addthis_button_preferred_1"></a>' +
@@ -383,9 +374,9 @@ msos.site.addthis_share = function () {
 				'<a class="addthis_button_compact"></a>' +
 				'<a class="addthis_counter addthis_bubble_style"></a>' +
 			'</div>',
-		run_addthis = function () {
+		run_addthis = () => {
 
-			var atl = new msos.loader();
+			let atl = new msos.loader();
 
 			atl.add_resource_onload.push(
 				function () {
@@ -418,10 +409,9 @@ msos.site.addthis_share = function () {
 // Site Specific Code
 // --------------------------
 
-msos.site.auto_init = function () {
-    "use strict";
+msos.site.auto_init = () => {
 
-	var temp_ai = 'msos.site.auto_init -> ',
+	let temp_ai = 'msos.site.auto_init -> ',
 		cfg = msos.config,
 		req = msos.require,
 		bw_val = msos.config.storage.site_bdwd.value || '',
@@ -466,10 +456,9 @@ msos.site.auto_init = function () {
 	msos.console.debug(temp_ai + 'done!');
 };
 
-msos.site.css_load = function () {
-    "use strict";
+msos.site.css_load = () => {
 
-    var temp_cl = 'msos.site.css_load -> ',
+    let temp_cl = 'msos.site.css_load -> ',
 		css_loader = null,
 		M = Modernizr,
 		con_type = msos.config.connection.type;
@@ -504,7 +493,7 @@ msos.css_loader(msos.deferred_css);
 
 // Define and set the page 'app' to initialize
 msos.onload_func_pre.push(
-	function () {
+	() => {
 
 		// Load the Page App
 		msos.require("msos.page");
@@ -515,8 +504,8 @@ msos.onload_func_pre.push(
 
 		// Define namespace for page content and header/footer templates
 		msos.onload_func_post.push(
-			function () {
-				var app_config = {
+			() => {
+				let app_config = {
 						root: { base: '', group: 'demo', name: 'home' },	// is default page script location (ie: ./demo/home.js)
 						header: demo.tmpl.header,
 						footer: demo.tmpl.footer,
@@ -526,7 +515,7 @@ msos.onload_func_pre.push(
 				msos.page.initiate(app_config);
 
 				// Mask the initial page building process (its ugly due lapse between header/footer and content)
-				setTimeout(function () { jQuery('#body').css('visibility', 'visible'); }, 250);
+				setTimeout(() => { jQuery('#body').css('visibility', 'visible'); }, 250);
 			}
 		);
 	}
