@@ -2176,8 +2176,8 @@ Object.keys(msos.config.size_wide).map(
 		}
 	).sort(
 		(a, b) => {
-			if (a[1] < b[1]) return -1;
-			if (a[1] > b[1]) return  1;
+			if (a[1] < b[1]) { return -1; }
+			if (a[1] > b[1]) { return  1; }
 			return 0;
 		}
 	).forEach(
@@ -3483,7 +3483,7 @@ msos.notify = {
 	container: jQuery("<div id='notify_container'></div>"),
 
 	add: function () {
-		let cont = msos.notify.container;
+		let cont = this.container;
 
 		// Add our container
 		jQuery('body').append(cont);
@@ -3506,7 +3506,7 @@ msos.notify = {
 	current: null,
 
 	clear_current: function () {
-		let self = msos.notify;
+		let self = this;
 
 		// Errors and warnings are a special case, (we always show them to completion)
 		if (self.current !== null
@@ -3520,7 +3520,7 @@ msos.notify = {
 	},
 
 	clear: function () {
-		let self = msos.notify,
+		let self = this,
 			n = 0;
 
 		msos.console.debug('msos.notify.clear -> called, for queue: ' + self.queue.length);
@@ -3537,7 +3537,7 @@ msos.notify = {
 
 	run: function () {
 		let temp_rn = 'msos.notify.run -> ',
-			self = msos.notify;
+			self = this;
 
 			self.current = self.queue.shift() || null;
 
@@ -3555,7 +3555,7 @@ msos.notify = {
 
 	base: function (type, message, title, icon_html, delay = 4000) {	// default delay (minimum), is 4 sec.
 		let temp_ntf = 'msos.notify.base -> ',
-			self = msos.notify,
+			self = this,
 			base_obj = {
 				type: type,
 				delay: delay,
@@ -3622,7 +3622,7 @@ msos.notify = {
 	},
 
 	info: function (message, title) {
-		let obj = new msos.notify.base(
+		let obj = msos.notify.base(
 			'info',
 			message,
 			title,
@@ -3632,7 +3632,7 @@ msos.notify = {
 	},
 
 	warning: function (message, title) {
-		let obj = new msos.notify.base(
+		let obj = msos.notify.base(
 			'warning',
 			message,
 			title,
@@ -3643,7 +3643,7 @@ msos.notify = {
 	},
 
 	error: function (message, title) {
-		let obj = new msos.notify.base(
+		let obj = msos.notify.base(
 			'error',
 			message,
 			title,
@@ -3654,7 +3654,7 @@ msos.notify = {
 	},
 
 	success: function (message, title) {
-		let obj = new msos.notify.base(
+		let obj = msos.notify.base(
 			'success',
 			message,
 			title,
@@ -3664,7 +3664,7 @@ msos.notify = {
 	},
 
 	loading: function (message, title) {
-		let obj = new msos.notify.base(
+		let obj = msos.notify.base(
 			'loading',
 			message,
 			title,
