@@ -24,6 +24,7 @@
 	addthis_config: false
 */
 
+
 import '../mobilesiteos/jquery/v214.uc.js';
 import '../mobilesiteos/jquery/ui/v1114.uc.js';
 import '../mobilesiteos/underscore/v183.uc.js';
@@ -526,6 +527,21 @@ msos.onload_func_pre.push(msos.site.auto_init);
 
 // Load additional CSS last, if supported
 msos.onload_func_post.push(msos.site.css_load);
+
+// Fix for ES6 timing issue (most likely due to traceur.js load and exec. duration)
+// Near instananious page "document.ready()" call means the jQuery positioning code screws up.
+msos.onload_func_start.push(
+	() => {
+		jQuery('#notify_container').position(
+			{
+				of: window,
+				my: 'center top+60',
+				at: 'center top',
+				collision: 'none'
+			}
+		);
+	}
+);
 
 msos.console.info('config -> done!');
 msos.console.timeEnd('config');
