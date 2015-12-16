@@ -738,6 +738,27 @@ msos.console.time('base');
 msos.console.debug('msos/base -> msos.console now available.');
 msos.console.debug('msos/base -> purl.js now available.');
 
+msos.site_specific = function (settings) {
+	let i = 0,
+		ms_db = msos.config.debugging,
+		ms_qu = msos.config.query,
+		set = '';
+
+	for (i = 0; i < ms_db.length; i += 1) {
+		// configuration setting
+		set = ms_db[i];
+
+		if (typeof settings[set] === 'boolean') {
+			// Set msos.config based on site specific setting
+			msos.config[set] = settings[set];
+		}
+		if (typeof ms_qu[set] === 'boolean') {
+			// Or override w/ debugging settings if sent via query string
+			msos.config[set] = ms_qu[set];
+		}
+	}
+};
+
 
 /*!
  * modernizr v3.2.0

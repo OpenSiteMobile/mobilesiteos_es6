@@ -28,7 +28,7 @@
 import '../mobilesiteos/jquery/v214.uc.js';
 import '../mobilesiteos/jquery/ui/v1114.uc.js';
 import '../mobilesiteos/underscore/v183.uc.js';
-import '../mobilesiteos/backbone/v120.uc.js';
+import '../mobilesiteos/backbone/v123.uc.js';
 import '../mobilesiteos/hammer/v204.uc.js';
 import '../mobilesiteos/gmap3/v600.uc.js';
 import { msos } from '../mobilesiteos_es6/msos/base.uc.es6';
@@ -42,13 +42,16 @@ msos.console.time('config');
 // Set the url to the MobileSiteOS 'msos' folder
 msos.base_script_url = msos.base_site_url + '/mobilesiteos/msos/';
 
-// Set specific flags for this site's configuration:
-msos.config.run_ads = true;
-msos.config.run_size = true;
-msos.config.run_analytics = true;
-//msos.config.run_onerror = true;
-msos.config.run_social = true;
-//msos.config.run_translate = true;
+// Set specific config flags (w/ boolean)
+msos.site_specific({
+	run_ads: true,
+	run_size: true,
+	run_social: true
+});
+
+if (msos.config.verbose) {
+	msos.console.debug('config -> initial:', msos.config);
+}
 
 
 // --------------------------
