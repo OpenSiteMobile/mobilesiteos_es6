@@ -738,15 +738,13 @@ msos.console.time('base');
 msos.console.debug('msos/base -> msos.console now available.');
 msos.console.debug('msos/base -> purl.js now available.');
 
-msos.site_specific = function (settings) {
-	let i = 0,
-		ms_db = msos.config.debugging,
-		ms_qu = msos.config.query,
-		set = '';
+msos.site_specific = (settings) => {
+	let ms_db = msos.config.debugging,
+		ms_qu = msos.config.query;
 
-	for (i = 0; i < ms_db.length; i += 1) {
+	for (let i = 0; i < ms_db.length; i += 1) {
 		// configuration setting
-		set = ms_db[i];
+		let set = ms_db[i];
 
 		if (typeof settings[set] === 'boolean') {
 			// Set msos.config based on site specific setting
@@ -2322,7 +2320,7 @@ msos.run_function_array = (name = 'missing') => {
 // --------------------------
 msos.resource_url = (folder, resource_file) => {
     // Always relative to 'msos' folder
-    return msos.base_script_url.replace(/\/msos\//, '/' + folder + '/') + resource_file;
+    return msos.base_script_url.replace(/\/msos\//, '/' + (folder ? folder + '/' : '')) + resource_file;
 };
 
 msos.set_locale = () => {
@@ -3043,6 +3041,13 @@ msos.escape_html = (str) => {
     return '';
 };
 
+msos.absolute_url = (url) => {
+    let el = document.createElement('div');
+
+    el.innerHTML = '<a href="' + msos.escape_html(url) + '">x</a>';
+    return el.firstChild.href;
+};
+
 msos.valid_jq_node = ($node, type) => {
     let temp_vn = 'msos.valid_jq_node -> input is not a ';
 
@@ -3485,18 +3490,27 @@ msos.ajax_error = (xhr, status, error) => {
 };
 
 msos.hide_mobile_url = () => {
-	// Order with msos.notify is important. We don't want scrolling and DOM manipulations to interact.
-	window.scrollTo(0, 1);
+	let temp_mu = 'msos.hide_mobile_url -> ',
+		scrollTop;
 
-	let scrollTop =
-			window.pageYOffset
-		|| (window.document.compatMode === "CSS1Compat" && window.document.documentElement.scrollTop)
-		||  window.document.body.scrollTop
-		||  0;
+	// If there's a hash, stop here
+    if (!location.hash) {
 
-	msos.console.debug('msos.hide_mobile_url -> called, scrollTop: ' + scrollTop);
+		// Order with msos.notify is important. We don't want scrolling and DOM manipulations to interact.
+		window.scrollTo(0, 1);
 
-	setTimeout(() => { window.scrollTo(0, scrollTop === 1 ? 0 : 1); }, 1);
+		scrollTop =
+				window.pageYOffset
+			|| (window.document.compatMode === "CSS1Compat" && window.document.documentElement.scrollTop)
+			||  window.document.body.scrollTop
+			||  0;
+
+		msos.console.debug(temp_mu + 'called, scrollTop: ' + scrollTop);
+
+		setTimeout(() => { window.scrollTo(0, scrollTop === 1 ? 0 : 1); }, 1);
+	} else {
+		msos.console.debug(temp_mu + 'skipped, for location.hash');
+	}
 };
 
 msos.notify = {
