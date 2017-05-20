@@ -1,32 +1,24 @@
 // Copyright Notice:
 //					config.js
-//			Copyright©2012-2015 - OpenSiteMobile
+//			Copyright©2012-2017 - OpenSiteMobile
 //				All rights reserved
 // ==========================================================================
-//			http://opensite.mobi
+//			http://ngmomentum.com & http://opensitemobile.com
 // ==========================================================================
 // Contact Information:
 //			Author: Dwight Vietzke
 //			Email:  dwight_vietzke@yahoo.com
 
 /*
-	OpenSiteMobile - MobileSiteOS demo pages (base) configuration file
+	MobileSiteOS demo pages (base) configuration file
 */
 
 /*global
-	msos:false,
-	Modernizr:false,
-	jQuery: false,
-	_: false,
-    _gaq: true,
-    ___gcfg: true,
-	addthis: false,
-	addthis_config: false
+	msos: false
 */
 
-
-import '../mobilesiteos/jquery/v214.uc.js';
-import '../mobilesiteos/jquery/ui/v1114.uc.js';
+import '../mobilesiteos/jquery/v311_msos.uc.js';
+import '../mobilesiteos/jquery/ui/v1120.uc.js';
 import '../mobilesiteos/underscore/v183.uc.js';
 import '../mobilesiteos/backbone/v123.uc.js';
 import '../mobilesiteos/hammer/v204.uc.js';
@@ -36,18 +28,14 @@ import { msos } from '../mobilesiteos_es6/msos/base.uc.es6';
 // Make msos available globally
 window.msos = msos;
 
-msos.console.info('config -> start, (/config.js file).');
+msos.console.info('config -> start, (/mobilesiteos_es6/config.js file).');
 msos.console.time('config');
+
+// Set specific config flags (w/ boolean)
+msos.site_specific({ run_onerror: true, run_ads: true, run_size: true });
 
 // Set the url to the MobileSiteOS 'msos' folder
 msos.base_script_url = msos.base_site_url + '/mobilesiteos/msos/';
-
-// Set specific config flags (w/ boolean)
-msos.site_specific({
-	run_ads: true,
-	run_size: true,
-	run_social: true
-});
 
 if (msos.config.verbose) {
 	msos.console.debug('config -> initial:', msos.config);
@@ -58,22 +46,17 @@ if (msos.config.verbose) {
 // Google, AddThis Related Globals
 // --------------------------
 let _gaq = [],
-    ___gcfg = {},
-	addthis_config = {
-		username: 'MobileSiteOS',
-		data_ga_property: 'UA-24170958-1',
-		ui_language: msos.default_locale,
-		ui_click: true
-	};
+    ___gcfg = {};
 
-// AddThis Social Sharing
-msos.config.addthis_pubid = 'ra-515ca32f73d2b2ae';
 
 // Google Analytics
 _gaq.push(['_setAccount', 'UA-24170958-1']);
 _gaq.push(['_trackPageview']);
 // Ref. 'msos.site.google_analytics' in site.uc.js -> site.min.js
 msos.config.google.analytics_domain = 'opensitemobile.com';
+
+// Add your Google Maps API key here.
+msos.config.google.maps_api_key = 'AIzaSyAhvG_5h55iUW3fLREMTPxB6joCAexYQ2o';
 
 // Add your Google Web Page Translator Widget ID here.
 msos.config.google.translate_id = '7aa52b36fcd8fcb6-07fbdbdc6a976e62-g7261f6c2de6e277c-d';
@@ -103,10 +86,10 @@ msos.config.social = {
 // --------------------------
 
 if (msos.config.debug_css) {
-	
+
 	msos.deferred_css = [
+		msos.resource_url('fonts', 'css/fontawesome.uc.css'),
 		msos.resource_url('css', 'normalize.uc.css'),
-		msos.resource_url('css', 'font_awesome.uc.css'),
 		msos.resource_url('css', 'msos.css'),
 		msos.resource_url('css', 'msos_bs.css'),
 		msos.resource_url('css', 'msos_theme.css'),
@@ -115,9 +98,9 @@ if (msos.config.debug_css) {
 
 } else {
 
-		msos.deferred_css = [
+	msos.deferred_css = [
+		msos.resource_url('fonts', 'css/fontawesome.min.css'),
 		msos.resource_url('css', 'normalize.min.css'),
-		msos.resource_url('css', 'font_awesome.min.css'),
 		msos.resource_url('css', 'msos.css'),
 		msos.resource_url('css', 'msos_bs.css'),
 		msos.resource_url('css', 'msos_theme.css'),
@@ -361,55 +344,6 @@ msos.site.google_analytics = () => {
 
 
 // --------------------------
-// Social Website Code
-// --------------------------
-
-msos.site.addthis_share = () => {
-
-	// Use AddThis provided language output
-	msos.config.google.no_translate.by_id.push('#social_ties');
-
-	let html_out =
-			'<div class="addthis_toolbox addthis_default_style ">' +
-				'<a class="addthis_button_google_plusone_share"></a>' +
-				'<a class="addthis_button_preferred_1"></a>' +
-				'<a class="addthis_button_preferred_2"></a>' +
-				'<a class="addthis_button_preferred_3"></a>' +
-				'<a class="addthis_button_compact"></a>' +
-				'<a class="addthis_counter addthis_bubble_style"></a>' +
-			'</div>',
-		run_addthis = () => {
-
-			let atl = new msos.loader();
-
-			atl.add_resource_onload.push(
-				function () {
-					if (addthis && addthis.init) {
-						setTimeout(addthis.init, 250);		// Give AddThis css a chance to load completely
-					} else {
-						msos.console.warn('msos.site.addthis_share -> failed to load!');
-					}
-				}
-			);
-
-			addthis_config.ui_language = msos.config.locale.replace('_', '-');
-
-			atl.load(
-				'addthis_share_api',
-				'//s7.addthis.com/js/300/addthis_widget.js#pubid=' + msos.config.addthis_pubid + '&async=1&domready=1',
-				'js'
-			);
-		};
-
-	// Add our 'AddThis' html
-	jQuery('#social_ties').html(html_out);
-
-	// Run this after everything else is done (non-critical)
-	msos.onload_func_post.push(run_addthis);
-};
-
-
-// --------------------------
 // Site Specific Code
 // --------------------------
 
@@ -442,13 +376,7 @@ msos.site.auto_init = () => {
 	if (cfg.console)		{ req("msos.pyromane"); }
 
     // Based on page elements and configuration -> run functions or add modules
-    if (cfg.run_ads
-	 && bdwidth > 150
-	 && jQuery('#branding').length === 1)		{ req("msos.google.ad"); }
-
-    if (cfg.run_social
-	 && bdwidth > 150
-     && jQuery('#social_ties').length)			{ msos.site.addthis_share(); }
+    if (cfg.run_ads && bdwidth > 150 && jQuery('#branding').length === 1) { req("msos.google.ad"); }
 
 	// Or based on configuration settings
 	if (cfg.run_analytics && bdwidth > 150)		{ msos.site.google_analytics(); }
@@ -479,13 +407,13 @@ msos.site.css_load = () => {
 
     // Only load css3 if supported
 	if (M.cssgradients) {
-		css_loader.load('msos_gradient_css',	msos.resource_url('css', 'msos_gradient.css'));
+		css_loader.load(msos.resource_url('css', 'msos_gradient.css'));
     }
 	if (M.csstransitions) {
-		css_loader.load('msos_transition_css',	msos.resource_url('css', 'msos_transition.css'));
+		css_loader.load(msos.resource_url('css', 'msos_transition.css'));
     }
 	if (M.cssanimations && M.csstransforms) {
-		css_loader.load('msos_animation_css',	msos.resource_url('css', 'msos_animation.css'));
+		css_loader.load(msos.resource_url('css', 'msos_animation.css'));
     }
 
 	msos.console.debug(temp_cl + 'done!');
