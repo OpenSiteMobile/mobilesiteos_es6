@@ -1,6 +1,6 @@
 // Copyright Notice:
 //					base.js
-//			Copyright©2012-2015 - OpenSiteMobile
+//			Copyright©2012-2017 - OpenSiteMobile
 //				All rights reserved
 // ==========================================================================
 //			http://opensitemobile.com
@@ -107,6 +107,7 @@ export let msos = {
 	onorientationchange_functions: [],
     onresize_functions: [],
 
+	pending_file_loads: [],
     record_times: {},
 
     registered_files: {
@@ -2493,10 +2494,7 @@ msos.browser_touch = () => {
 
     if ("ontouchstart" in test_div) {
 		touch_avail += 1;
-    } else {
-		test_div.setAttribute("ontouchstart", 'return;');
-		touch_avail += (typeof test_div.ontouchstart === 'function') ? 1 : -1;
-      }
+    }
 
     test_div = null;
 
@@ -2659,6 +2657,7 @@ msos.create_node = (tag, atts_obj, win) => {
     return elem;
 };
 
+
 msos.loader = function (win = window) {
     let temp_mod = 'msos.loader',
 		ld_obj = this,
@@ -2685,22 +2684,24 @@ msos.loader = function (win = window) {
 	this.add_resource_onload = [];
 
     // Load the resource
-    this.load = function (name, url, type, attribs = {}) {
-		let base = url.split('?')[0],
+    this.load = function (url, type, attribs = {}) {
+		let name = msos.generate_url_name(url),
+			base = url.split('?')[0],
 			ext = base.substr(base.lastIndexOf('.') + 1),
 			pattern = /^js|css|ico$/,
 			lo = ' - load -> ',
 			load_resource_func = null;
 
 		if (msos.config.verbose) {
-			msos.console.debug(temp_mod + lo + 'start.');
+			msos.console.debug(temp_mod + lo + 'start, name: ' + name);
 		}
 
 		// If file type passed in use it, otherwise determine from url
 		if (!type) { type = ext || 'na'; }
 
-		if (!pattern.test(type)) {
-			msos.console.error(temp_mod + lo + 'missing or invalid: ' + type);
+		if (!pattern.test(type) || !name) {
+
+			msos.console.error(temp_mod + lo + 'missing or invalid input for url: ' + url + ', type: ' + type);
 			return;
 		}
 
@@ -2710,10 +2711,12 @@ msos.loader = function (win = window) {
 
 		} else {
 
-			load_resource_func = () => ld_obj.resource(name, url, type, attribs);
+			load_resource_func = function () {
+				ld_obj.resource(name, url, type, attribs);
+				msos.pending_file_loads.push(name);
+			};
 
-			if (attribs.defer
-			 && attribs.defer === 'defer') {
+			if (attribs.defer && attribs.defer === 'defer') {
 
 				if (msos.config.script_preload.ordered) {
 
@@ -2761,8 +2764,7 @@ msos.loader = function (win = window) {
 		msos.console.debug(temp_mod + ld + 'start.');
 
 		// Important: See the popwin.js for 'win.msos.registered_files' clearing
-		if (win.msos.registered_files[file_type]
-		 && win.msos.registered_files[file_type][file_name]) {
+		if (win.msos.registered_files[file_type] && win.msos.registered_files[file_type][file_name]) {
 			flag_loaded = true;
 		}
 
@@ -2852,15 +2854,25 @@ msos.loader = function (win = window) {
 			ls = ' - resource -> ',
 			on_resource_load = function () {
 				let i = 0,
+					pending_idx,
+					pending_file = msos.pending_file_loads,
 					shifted;
 
 				if (this.msos_load_state !== 'loaded' && (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete' || this.readyState === 'uninitialized')) {
 
-					if (msos.config.verbose) {
-						msos.console.debug(temp_mod + ls + 'loaded, name: ' + this.id);
-					}
-
 					this.msos_load_state = 'loaded';
+
+					// This should always return an index...
+					pending_idx = _.indexOf(pending_file, this.id);
+
+					if (pending_idx >= 0) {
+						pending_file.splice(pending_idx, 1);
+						if (msos.config.verbose) {
+							msos.console.debug(temp_mod + ls + 'loaded, name: ' + this.id + ', pending file count:', pending_file.length);
+						}
+					} else {
+						msos.console.error(temp_mod + ls + 'unknown pending file, name: ' + this.id, pending_file);
+					}
 
 					for (i = 0; i < ld_obj.add_resource_onload.length; i += 1) {
 						ld_obj.add_resource_onload[i]();
@@ -3027,7 +3039,7 @@ msos.css_loader = (url_array, win) => {
 	for (i = 0; i < url_array.length; i += 1) {
 		css_url = url_array[i];
 		css_name = msos.generate_url_name(css_url);
-		loader_obj.load(css_name, css_url, 'css');
+		loader_obj.load(css_url, 'css');
 	}
 
 	msos.console.debug(temp_cl + 'done!');
