@@ -22,8 +22,6 @@
     _: false
 */
 
-if (console && console.info) { console.info('msos/base -> start.'); }
-
 // --------------------------
 // Our Global Object
 // --------------------------
@@ -62,8 +60,9 @@ export let msos = {
     // *** Do NOT edit the key/value pairs below ***
 	// *******************************************
 
-    base_site_url: '//' + document.domain,
-	base_script_url: '',
+    base_site_url: document.domain ? '//' + document.domain : '',
+	base_script_url: document.currentScript && document.currentScript.src ? document.currentScript.src : '',
+	base_msos_folder: '',
 	base_config_url: '',
 	base_images_url: '',
 
@@ -71,6 +70,11 @@ export let msos = {
     head: null,
     html: null,
     docl: null,
+
+	console: {
+		queue: [],
+		remote: []
+	},
 
 	ajax_loading_kbps: {},
 
@@ -140,6 +144,8 @@ export let msos = {
 msos.config = {
 	// Ref. -> set app specifics in '/js/config.js' file
     console: false,
+	console_alert: false,
+	console_remote: false,
 	clear_storage: false,
     debug: false,
 	debug_css: false,
@@ -644,21 +650,41 @@ msos.parse_query = () => {
 // Run immediately so inputs are evaluated
 msos.config.query = msos.parse_query();
 
+/*
+ * MobileSiteOS Debugging Console
+ */
 
-msos.console = (function () {
+(function (console_obj) {
+	"use strict";
 
-	let console_obj = { queue: [] },
-		console_win = window.console,
+	var console_win = window.console,
 		idx = msos.log_methods.length - 1,
-		aps = Array.prototype.slice;
+		aps = Array.prototype.slice,
+		methods = [
+			'assert', 'clear', 'count', 'debug', 'dir', 'dirxml',
+			'error', 'exception', 'group', 'groupCollapsed', 'groupEnd',
+			'info', 'log', 'markTimeline', 'profile', 'profiles',
+			'profileEnd', 'show', 'table', 'time', 'timeEnd', 'timeline',
+			'timelineEnd', 'timeStamp', 'trace', 'warn'
+		],
+		method = methods.pop(),
+		console_method_func = function (key) {
+			return function () { msos.console.warn('msos.console -> method: ' + key + ' is na!'); };
+		};
+
+	// Normalize across browsers
+    if (!console_win.memory) { console_win.memory = {}; }
+
+    while (method) {
+		if (!console_win[method]) { console_win[method] = console_method_func(method); }
+		method = methods.pop();
+	}
 
 	// From AngularJS
     function formatError(arg) {
 		if (arg instanceof Error) {
 			if (arg.stack) {
-				arg = (arg.message && arg.stack.indexOf(arg.message) === -1)
-					? 'Error: ' + arg.message + '\n' + arg.stack
-					: arg.stack;
+				arg = (arg.message && arg.stack.indexOf(arg.message) === -1) ? 'Error: ' + arg.message + '\n' + arg.stack : arg.stack;
 			} else if (arg.sourceURL) {
 				arg = arg.message + '\n' + arg.sourceURL + ':' + arg.line;
 			}
@@ -666,78 +692,100 @@ msos.console = (function () {
 		return arg;
     }
 
-	while (idx >= 0) {
+	function build_console(method) {
 
-		(function (method) {
+		console_obj[method] = function () {
 
-			console_obj[method] = function (...args) {
+			// Always show errors, warnings and info
+			if (!(method === 'error' || method === 'warn' || method === 'info') && !msos.config.debug) {
+				return;
+			}
 
-				// Always show errors and warnings
-				if (!(method === 'error' || method === 'warn') && !msos.config.debug) {
+			var cfg = msos.config,
+				filter = cfg.query.debug_filter || '',
+				i = 0,
+				args = aps.apply(arguments),
+				name = args[0] && typeof args[0] === 'string' ? args[0].replace(/\W/g, '_') : 'missing name or input',
+				console_org = console_win[method] || console_win.log,
+				log_output = [],
+				out_args = [],
+				message;
+
+			if (method === 'debug' && cfg.verbose && filter && /^[0-9a-zA-Z.]+$/.test(filter)) {
+				filter = new RegExp('^' + filter.replace('.', "\."));
+				if (!name.match(filter)) {
+					msos.console.warn('msos.console -> no match for debug filter: ' + filter);
 					return;
 				}
+			}
 
-				let cfg = msos.config,
-					filter = cfg.query.debug_filter || '',
-					i = 0,
-					name = args[0] ? args[0].replace(/\W/g, '_') : 'missing_args',
-					console_org = console_win[method] || console_win.log;
+			if (method === 'time' || method === 'timeEnd') {
+				msos.record_times[name + '_' + method] = (new Date()).getTime();
+			}
 
-				if (method === 'debug' && cfg.verbose && filter && /^[0-9a-zA-Z.]+$/.test(filter)) {
-					filter = new RegExp('^' + filter.replace('.', "\."));
-					if (!name.match(filter)) {
-						msos.console.warn('msos.console -> no match for debug filter: ' + filter);
-						return;
-					}
-				}
+			// Look for error objects and format for display
+			for (i = 0; i < args.length; i += 1) {
+				out_args.push(formatError(args[i]));
+			}
+
+			// if msos console output, add this code
+			if (cfg.console || cfg.console_alert || cfg.console_remote) {
+
+				log_output = [method].concat(out_args);
 
 				if (method === 'time' || method === 'timeEnd') {
-					msos.record_times[name + '_' + method] = (new Date()).getTime();
+					log_output.push(msos.record_times[name + '_' + method]);
 				}
 
-				// if msos console output, add this
-				if (cfg.console) {
+				console_obj.queue.push(log_output);
 
-					let log_output = [method, ...args];
-
-					if (method === 'time' || method === 'timeEnd') {
-						log_output.push(msos.record_times[name + '_' + method]);
-					}
-
-					console_obj.queue.push(log_output);
+				if (cfg.console_remote) {
+					console_obj.remote.push(log_output);
 				}
+			}
 
-				// if window console, add it
-				if (console_win) {
-					if (console_org.apply) {
-						let out_args = [];
+			if (console_win) {
 
-						for (i = 0; i < args.length; i += 1) {
-							out_args.push(formatError(args[i]));
-						}
+				if (console_org.apply) {
+					// Do this for normal browsers (msos.console output to window.console by type)
+					console_org.apply(console_win, out_args);
 
-						// Do this for normal browsers
-						console_org.apply(console_win, out_args);
-
-					} else {
-						// Do this for IE9
-						let message = args.join(' ');
-						console_org(message);
-					}
+				} else {
+					// Do msos.console output to very simple console)
+					message = msos.obj_stringify(args, true);
+					console_org(message);
 				}
-			};
+			}
+		};
+	}
 
-		}(msos.log_methods[idx]));
-
+	while (idx >= 0) {
+		build_console(msos.log_methods[idx]);
 		idx -= 1;
 	}
 
-	return console_obj;
-}());
+}(msos.console));
 
+msos.set_version = function (mjr, mnr, pth) {
+
+	let self = this;
+
+	self = {			// loosely translates to:
+		major: mjr,		// year
+		minor: mnr,		// month
+		patch: pth,		// day
+		toString() {
+			return 'v' + self.major + '.' + self.minor + '.' + self.patch;
+		}
+	};
+
+	return self;
+};
+
+// Console is now available...
+msos.console.info('msos/base -> start, (/mobilesiteos/msos/base.uc.js file), ' + (new msos.set_version(17, 6, 23)));
 msos.console.time('base');
-msos.console.debug('msos/base -> msos.console now available.');
-msos.console.debug('msos/base -> purl.js now available.');
+msos.console.info('msos/base -> settings,\n     msos.base_site_url: ' + msos.base_site_url + ',\n     msos.base_script_url: ' + msos.base_script_url + ',\n     msos.base_msos_folder: ' + msos.base_msos_folder + ',\n     msos.config.query:', msos.config.query);
 
 msos.site_specific = (settings) => {
 	let ms_db = msos.config.debugging,
@@ -758,6 +806,110 @@ msos.site_specific = (settings) => {
 	}
 };
 
+msos.obj_type = function (obj) {
+    "use strict";
+
+    return Object.prototype.toString.call(obj).match(/^\[object (.*)\]$/)[1];
+};
+
+msos.obj_to_string = function (obj) {
+    "use strict";
+
+    if (typeof obj !== 'string') { return String(obj) || ''; }
+
+    return obj;
+};
+
+msos.obj_stringify = function (o, simple) {
+	"use strict";
+
+	var json = '',
+		i = 0,
+		type = msos.obj_type(o),
+		parts = [],
+		names = [];
+
+	if (type === 'String') {
+		json = o.replace(/\n/g, '\\n').replace(/"/g, '\\"');
+	} else if (type === 'Array') {
+		json = '[';
+		for (i = 0; i < o.length; i += 1) {
+			parts.push(msos.obj_stringify(o[i], simple));
+		}
+		json += parts.join(', ') + ']';
+	} else if (type === 'Object') {
+		json = '{';
+		for (i in o) {
+		  if (o.hasOwnProperty(i)) { names.push(i); }
+		}
+
+		for (i = 0; i < names.length; i += 1) {
+			parts.push(msos.obj_stringify(names[i]) + ': ' + msos.obj_stringify(o[names[i]], simple));
+		}
+		json += parts.join(', ') + '}';
+	} else if (type === 'Number') {
+		json = o + '';
+	} else if (type === 'Boolean') {
+		json = o ? 'true' : 'false';
+	} else if (type === 'Function') {
+		json = o.toString();
+	} else if (o === null) {
+		json = 'null';
+	} else if (o === undefined) {
+		json = 'undefined';
+	} else if (simple === undefined) {
+		json = type + '{\n';
+		for (i in o) {
+		  if (o.hasOwnProperty(i)) { names.push(i); }
+		}
+
+		for (i = 0; i < names.length; i += 1) {
+			parts.push(names[i] + ': ' + msos.obj_stringify(o[names[i]], true));
+		}
+		json += parts.join(',\n') + '\n}';
+	} else {
+		json = msos.obj_to_string(o);
+	}
+
+	return json;
+};
+
+msos.remote_origin = 'https://jsconsole.com';
+msos.remoteWindow = null;
+msos.remoteFrame = null;
+
+msos.use_remote_debugging = function () {
+	"use strict";
+
+	msos.remoteFrame = document.createElement('iframe');
+	msos.remoteFrame.style.display = 'none';
+	msos.remoteFrame.src = msos.remote_origin + '/remote.html?' + msos.config.query.console_remote;
+
+	document.documentElement.appendChild(msos.remoteFrame);
+
+	msos.remoteFrame.onload = function () {
+
+		msos.remoteWindow = msos.remoteFrame.contentWindow;
+		msos.remoteWindow.postMessage(
+			'__init__',
+			msos.remote_origin
+		);
+
+		msos.remoteWindow.postMessage(
+			JSON.stringify(
+				{
+					response: 'Connection established: ' + window.location.toString() + '\n' + navigator.userAgent,
+					type: 'info'
+				}
+			),
+			msos.remote_origin
+		);
+	};
+};
+
+if (msos.config.query.console_remote && (/^msos_/).test(msos.config.query.console_remote)) {
+	msos.use_remote_debugging();
+}
 
 /*!
  * modernizr v3.2.0
@@ -2241,22 +2393,6 @@ msos.new_time = () => {
 	return (new Date()).getTime();
 };
 
-msos.set_version = function (mjr, mnr, pth) {
-
-	let self = this;
-
-	self = {			// loosely translates to:
-		major: mjr,		// year
-		minor: mnr,		// month
-		patch: pth,		// day
-		toString() {
-			return 'v' + self.major + '.' + self.minor + '.' + self.patch;
-		}
-	};
-
-	return self;
-};
-
 msos.gen_namespace = (b) => {
 
 	let a = window,
@@ -3118,6 +3254,25 @@ msos.zero_pad = (input, count, left) => {
     return str;
 };
 
+msos.run_debugging_output = () => {
+	"use strict";
+
+	if (msos.config.console_alert) {
+		msos.run_console_alert();
+	}
+
+	if (msos.config.console_remote) {
+		msos.run_console_remote();
+	}
+
+	if (msos.config.console) {
+		msos.pyromane.run();
+	}
+
+	// Clear queue to accomodate new input
+	msos.console.queue = [];
+};
+
 msos.run_onresize = () => {
     let temp_onr = 'msos.run_onresize -> ',
 		port_width = msos.config.view_port.width,	// save original width
@@ -3128,13 +3283,16 @@ msos.run_onresize = () => {
     // Get the viewport size (which resets msos.config.view_port)
     msos.get_viewport(window);
 
-	// Run all window onresize functions now
-	for (m = 0; m < msos.onresize_functions.length; m += 1) {
-		msos.onresize_functions[m]();
-	}
-
-	msos.console.debug(temp_onr + 'done, orig. w: ' + port_width + ', new w: ' + msos.config.view_port.width + ', for: ' + m + ' functions.');
-};
+	// Compare against original...
+	if (port_width === msos.config.view_port.width) {
+		msos.console.debug(temp_onr + 'done, no change w: ' + msos.config.view_port.width);
+	} else {
+		// Run all window onresize functions now
+		for (m = 0; m < msos.onresize_functions.length; m += 1) {
+			msos.onresize_functions[m]();
+		}
+		msos.console.debug(temp_onr + 'done, orig. w: ' + port_width + ', new w: ' + msos.config.view_port.width + ', for: ' + m + ' functions.');
+	}};
 
 msos.run_onorientationchange = () => {
     let temp_ono = 'msos.run_onorientationchange -> ',
@@ -3964,8 +4122,8 @@ msos.run_final = () => {
 
 	msos.console.debug(temp_rf + ' -> done!');
 
-	// Last function, report debugging output
-	if (msos.pyromane) { setTimeout(msos.pyromane.run, 500); }
+	// Last function, add debugging output
+	msos.run_debugging_output();
 
 	msos.run_onload_incr += 1;
 };
@@ -4096,6 +4254,9 @@ msos.run_onload = () => {
 				msos.console.error(run_txt + 'failed, module queue: ' + msos.require_queue + ', i18n queue: ' + msos.i18n_queue);
 				msos.notify.warning(jQuery('title').text(), 'Page Timed Out');
 				msos.check_resources();
+
+				// Report debugging info where possible
+				msos.run_debugging_output();
 			};
 			// Let any 'thrown errors' settle, then report script stop
 			setTimeout(report_stop, 400);
