@@ -17,7 +17,7 @@
 	msos: false
 */
 
-import '../mobilesiteos/jquery/v311_msos.uc.js';
+import '../mobilesiteos/jquery/v321_msos.uc.js';
 import '../mobilesiteos/jquery/ui/v1120.uc.js';
 import '../mobilesiteos/underscore/v183.uc.js';
 import '../mobilesiteos/backbone/v123.uc.js';
@@ -71,14 +71,20 @@ msos.config.google.hide_tooltip = {
 };
 
 // Social website API access keys
-msos.config.social = {
-	google: '526338426431.apps.googleusercontent.com',
-	facebook: '583738878406494',
+msos.config.oauth2 = {
+	google: '296183405068-3379jn2v9polk5aj6j6bilf1k42j0vp2.apps.googleusercontent.com',
+	facebook: '1510088492367892',
 	windows: '000000004C107945',
 	instagram: '34e2fb9bd305446cb080d852597584e9',
 	cloudmade: 'efca0172cf084708a66a6d48ae1046dd',
-	foursquare: 'SFYWHRQ1LTUJEQWYQMHOCXYWNFNS0MKUCAGANTHLFUGJX02E'
+	foursquare: 'SFYWHRQ1LTUJEQWYQMHOCXYWNFNS0MKUCAGANTHLFUGJX02E',
+	yahoo: '',
+	github: '',
+	proxy_url: 'https://auth-server.herokuapp.com/proxy'
 };
+
+// Add your Google Maps API key here.
+msos.config.google.maps_api_key = 'AIzaSyAhvG_5h55iUW3fLREMTPxB6joCAexYQ2o';
 
 
 // --------------------------
